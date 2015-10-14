@@ -9,25 +9,18 @@ import CS2JNet.JavaSupport.io.FilterOnlyDirs;
 import CS2JNet.JavaSupport.io.FilterOnlyFiles;
 import CS2JNet.System.Collections.LCC.IEnumerator;
 import CS2JNet.System.DateTimeSupport;
-import CS2JNet.System.IO.FileAccess;
-import CS2JNet.System.IO.FileMode;
-import CS2JNet.System.IO.FileStreamSupport;
-import CS2JNet.System.IO.StreamReader;
-import CS2JNet.System.IO.TextReaderSupport;
+import CS2JNet.System.IO.*;
 import CS2JNet.System.LCC.Disposable;
 import CS2JNet.System.StringSupport;
 import CS2JNet.System.Text.EncodingSupport;
 import CS2JNet.System.Text.StringBuilderSupport;
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
+
+import org.apache.commons.codec.binary.Base64;
+
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-
-import org.apache.commons.codec.binary.Base64;
 
 //using net.sf.jazzlib;
 public class MLSUtil   
@@ -79,10 +72,10 @@ public class MLSUtil
         return sSub;
     }
 
-    private static void copyInputStream(InputStream in_Renamed, InputStream out_Renamed) throws Exception {
+    private static void copyInputStream(InputStream in_Renamed, OutputStream out_Renamed) throws Exception {
         byte[] buffer = new byte[1024];
         int len;
-        while ((len = SupportClass.readInput(in_Renamed,buffer,0,buffer.length)) >= 0)
+        while ((len = in_Renamed.read(buffer, 0, buffer.length)) >= 0)
         out_Renamed.write(buffer,0,len);
         in_Renamed.close();
         out_Renamed.close();
@@ -146,7 +139,7 @@ public class MLSUtil
     //            }
     //            else
     //            {
-    //                zipFileName = zipFileName.Substring(zipFileName.LastIndexOf("/") + 1, (zipFileName.Length) - (zipFileName.LastIndexOf("/") + 1));
+    //                zipFileName = zipFileName.substring(zipFileName.LastIndexOf("/") + 1, (zipFileName.length()) - (zipFileName.LastIndexOf("/") + 1));
     //                //UPGRADE_TODO: Constructor 'java.io.FileOutputStream.FileOutputStream' was converted to 'System.IO.FileStream.FileStream' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javaioFileOutputStreamFileOutputStream_javalangString'"
     //                copyInputStream(zipFile.getInputStream(entry), new System.IO.BufferedStream(new System.IO.FileStream(extractToDir + zipFileName, System.IO.FileMode.Create)));
     //            }
@@ -246,9 +239,9 @@ public class MLSUtil
         return _value.replace(" ", "");
     }
 
-    //System.Text.StringBuilder sb = new System.Text.StringBuilder(_value.Length);
+    //System.Text.StringBuilder sb = new System.Text.StringBuilder(_value.length());
     //char[] value_Renamed = _value.ToCharArray();
-    //for (int i = 0; i < value_Renamed.Length; i++)
+    //for (int i = 0; i < value_Renamed.length(); i++)
     //    if (value_Renamed[i] != ' ')
     //        sb.Append(value_Renamed[i]);
     //return sb.ToString();
@@ -262,13 +255,13 @@ public class MLSUtil
         return _value.replace(substStr, substWith);
     }
 
-    //System.Text.StringBuilder sb = new System.Text.StringBuilder(_value.Length);
+    //System.Text.StringBuilder sb = new System.Text.StringBuilder(_value.length());
     //char[] value_Renamed = _value.ToCharArray();
     //char[] substStrValue = substStr.ToCharArray();
-    //int substStrLen = substStr.Length;
+    //int substStrLen = substStr.length();
     //int substStrIndex = 0;
     //int j, k = - 1;
-    //for (int i = 0; i < value_Renamed.Length; i++)
+    //for (int i = 0; i < value_Renamed.length(); i++)
     //{
     //    if (value_Renamed[i] == substStrValue[substStrIndex])
     //    {
@@ -296,7 +289,7 @@ public class MLSUtil
     //    }
     //}
     //if (k != - 1)
-    //    for (j = k; j < value_Renamed.Length; j++)
+    //    for (j = k; j < value_Renamed.length(); j++)
     //        sb.Append(value_Renamed[j]);
     //return sb.ToString();
     public static String cutBy(String _value, String cutByStr) throws Exception {
@@ -309,7 +302,7 @@ public class MLSUtil
         int i;
         cutByStr = cutByStr.replace('~', ' ');
         if ((i = _value.indexOf(cutByStr)) != -1)
-            return _value.Substring(0, (i)-(0));
+            return _value.substring(0, (i) - (0));
          
         return _value;
     }
@@ -322,7 +315,6 @@ public class MLSUtil
         StringBuilder digit = new StringBuilder();
         char[] value_Renamed = _value.toCharArray();
         boolean bAscii = false;
-        int iVar = 0;
         for (int i = 0;i < value_Renamed.length;i++)
         {
             if (value_Renamed[i] == '~')
@@ -333,7 +325,7 @@ public class MLSUtil
                 if (digit.length() != 0)
                 {
                     if (isNumber(digit.toString()))
-                        sb.append((char)Integer.valueOf(digit.toString()));
+                        sb.append(Integer.valueOf(digit.toString()));
                     else
                         sb.append(digit.toString()); 
                     digit = new StringBuilder();
@@ -351,7 +343,7 @@ public class MLSUtil
                 {
                     if (isNumber(digit.toString()))
                         //&& iVar.parseInt(digit.toString()) != 0 ) // because we can have /0
-                        sb.append((char)Integer.valueOf(digit.toString()));
+                        sb.append(Integer.valueOf(digit.toString()));
                     else
                         sb.append(digit.toString()); 
                     StringBuilderSupport.setLength(digit, 0);
@@ -367,7 +359,7 @@ public class MLSUtil
                     i++;
                 }
                 if (isNumber(digit.toString()))
-                    sb.append((char)Integer.valueOf(digit.toString()));
+                    sb.append(Integer.valueOf(digit.toString()));
                 else
                     sb.append(digit.toString()); 
                 StringBuilderSupport.setLength(digit, 0);
@@ -386,7 +378,7 @@ public class MLSUtil
                 else if (bAscii && digit.length() != 0)
                 {
                     if (isNumber(digit.toString()))
-                        sb.append((char)Integer.valueOf(digit.toString()));
+                        sb.append(Integer.valueOf(digit.toString()));
                     else
                         sb.append(digit.toString()); 
                     sb.append(value_Renamed[i]);
@@ -398,7 +390,7 @@ public class MLSUtil
                     if (digit.length() != 0)
                     {
                         if (isNumber(digit.toString()))
-                            sb.append((char)Integer.valueOf(digit.toString()));
+                            sb.append(Integer.valueOf(digit.toString()));
                         else
                             sb.append(digit.toString()); 
                         StringBuilderSupport.setLength(digit, 0);
@@ -414,7 +406,7 @@ public class MLSUtil
         {
             if (isNumber(digit.toString()))
                 //&& iVar.parseInt(digit.toString()) != 0 )
-                sb.append((char)Integer.valueOf(digit.toString()));
+                sb.append(Integer.valueOf(digit.toString()));
             else
                 sb.append(digit.toString()); 
             StringBuilderSupport.setLength(digit, 0);
@@ -424,20 +416,20 @@ public class MLSUtil
     }
 
     public static void copyFile(MLSEngine engine, String fromFileName, String toFileName) throws Exception {
-        System.IO.BufferedStream fis = null;
-        System.IO.BufferedStream fos = null;
+        java.io.BufferedReader fis = null;
+        java.io.BufferedWriter fos = null;
         if (!fromFileName.toUpperCase().equals(toFileName.toUpperCase()))
         {
             try
             {
-                //UPGRADE_TODO: Constructor 'java.io.FileInputStream.FileInputStream' was converted to 'System.IO.FileStream.FileStream' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javaioFileInputStreamFileInputStream_javalangString'"
-                fis = new System.IO.BufferedStream(new FileStreamSupport(fromFileName, FileMode.Open, FileAccess.Read));
-                //UPGRADE_TODO: Constructor 'java.io.FileOutputStream.FileOutputStream' was converted to 'System.IO.FileStream.FileStream' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javaioFileOutputStreamFileOutputStream_javalangString'"
-                fos = new System.IO.BufferedStream(new FileStreamSupport(toFileName, FileMode.Create));
-                byte[] buf = new byte[8192];
+
+                fis = new java.io.BufferedReader(new java.io.FileReader(fromFileName));
+
+                fos = new java.io.BufferedWriter(new java.io.FileWriter(toFileName));
+                char[] buf = new char[8192];
                 int n;
-                while ((n = SupportClass.ReadInput(fis, buf, 0, buf.length)) >= 0)
-                fos.Write(buf, 0, n);
+                while ((n = fis.read(buf, 0, buf.length)) >= 0)
+                fos.write(String.valueOf(buf), 0, n);
             }
             catch (Exception exc)
             {
@@ -449,7 +441,7 @@ public class MLSUtil
                     try
                     {
                         //UPGRADE_TODO: Method 'java.io.FilterInputStream.close' was converted to 'System.IO.BinaryReader.Close' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javaioFilterInputStreamclose'"
-                        fis.Close();
+                        fis.close();
                     }
                     catch (Exception exc)
                     {
@@ -459,7 +451,7 @@ public class MLSUtil
                 if (fos != null)
                     try
                     {
-                        fos.Close();
+                        fos.close();
                     }
                     catch (Exception exc)
                     {
@@ -521,7 +513,7 @@ public class MLSUtil
     * here extract x1
     */
     public static int getLineNumber(String str) throws Exception {
-        String value_Renamed = str.Substring(str.indexOf("{"), (str.Length)-(str.indexOf("{")));
+        String value_Renamed = str.substring(str.indexOf("{"), (str.length())-(str.indexOf("{")));
         return getPositionValue(value_Renamed,"{",",");
     }
 
@@ -530,7 +522,7 @@ public class MLSUtil
     * here extract x2
     */
     public static int getOffset(String str) throws Exception {
-        String value_Renamed = str.Substring(str.indexOf("{"), (str.Length)-(str.indexOf("{")));
+        String value_Renamed = str.substring(str.indexOf("{"), (str.length())-(str.indexOf("{")));
         return getPositionValue(value_Renamed,",","}");
     }
 
@@ -559,7 +551,7 @@ public class MLSUtil
                     p1 = 0;
                  
                 if (p > 0 && p1 >= 0 && p > p1)
-                    dest = dest.Substring(p1, (p)-(p1));
+                    dest = dest.substring(p1, (p)-(p1));
                 else
                     break; 
                 if (++lineNumber == 0)
@@ -617,7 +609,7 @@ public class MLSUtil
         if (DelimIndex == -1)
             DelimIndex = sParas.length() - 1;
          
-        String strResult = sParas.Substring(AsignIndex + sAsign.length(), (DelimIndex)-(AsignIndex + sAsign.length())).Trim();
+        String strResult = sParas.substring(AsignIndex + sAsign.length(), (DelimIndex)-(AsignIndex + sAsign.length())).Trim();
         if (strResult.indexOf('"') != -1)
             strResult = deleteQuote(strResult);
          
@@ -642,7 +634,7 @@ public class MLSUtil
         if (str == null || str.indexOf('"') == -1)
             return null;
          
-        String sTmp = str.Substring(str.indexOf('"') + 1, (str.Length)-(str.indexOf('"') + 1));
+        String sTmp = str.substring(str.indexOf('"') + 1, (str.length())-(str.indexOf('"') + 1));
         if (sTmp.indexOf('"') != -1)
             sTmp = sTmp.substring(0, (0) + ((sTmp.indexOf('"')) - (0)));
          
@@ -908,7 +900,7 @@ public class MLSUtil
     //        {
     //            zipEntryName = ze.getName();
     //            if (zipEntryName.LastIndexOf("/") != - 1)
-    //                zipEntryName = zipEntryName.Substring(zipEntryName.LastIndexOf("/") + 1);
+    //                zipEntryName = zipEntryName.substring(zipEntryName.LastIndexOf("/") + 1);
     //            if (zipEntryName.ToUpper().Equals(fileName.ToUpper()))
     //            {
     //                bFound = true;
@@ -1093,8 +1085,8 @@ public class MLSUtil
     //    // (a) we don't misallocate the output array, and
     //    // (b) think that we miscalculated our data length
     //    //     just because of extraneous throw-away junk
-    //    int tempLen = data.Length;
-    //    for (int ix = 0; ix < data.Length; ix++)
+    //    int tempLen = data.length();
+    //    for (int ix = 0; ix < data.length(); ix++)
     //    {
     //        if ((data[ix] > 255) || codes[data[ix]] < 0)
     //            --tempLen; // ignore non-valid chars and padding
@@ -1113,7 +1105,7 @@ public class MLSUtil
     //    int accum = 0; // excess bits
     //    int index = 0;
     //    // we now go through the entire array (NOT using the 'tempLen' value)
-    //    for (int ix = 0; ix < data.Length; ix++)
+    //    for (int ix = 0; ix < data.length(); ix++)
     //    {
     //        int value_Renamed = (data[ix] > 255)?- 1:codes[data[ix]];
     //        if (value_Renamed >= 0)
@@ -1137,9 +1129,9 @@ public class MLSUtil
     //        // advantage in this combination.
     //    }
     //    // if there is STILL something wrong we just have to throw up now!
-    //    if (index != out_Renamed.Length)
+    //    if (index != out_Renamed.length())
     //    {
-    //        throw new System.ApplicationException("Miscalculated data length (wrote " + index + " instead of " + out_Renamed.Length + ")");
+    //        throw new System.ApplicationException("Miscalculated data length (wrote " + index + " instead of " + out_Renamed.length() + ")");
     //    }
     //    return out_Renamed;
     //}

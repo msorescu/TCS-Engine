@@ -26,7 +26,7 @@ import java.util.Hashtable;
 import java.util.Random;
 import java.util.TimeZone;
 
-import net.toppro.components.mls.engine.BoardSetup;
+import engine.BoardSetup;
 import net.toppro.components.mls.engine.BoardSetupField;
 import net.toppro.components.mls.engine.MLSCmaFields;
 import net.toppro.components.mls.engine.MLSException;

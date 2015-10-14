@@ -2,6 +2,7 @@
 // Translated by CS2J (http://www.cs2j.com): 10/5/2015 1:33:50 PM
 //
 
+package engine;
 
 import CS2JNet.System.ArgumentException;
 import CS2JNet.System.Collections.LCC.IEnumerator;
@@ -11,8 +12,7 @@ import CS2JNet.System.IO.FileStreamSupport;
 
 import java.io.File;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.*;
 
 /**
  * Contains conversion support elements such as classes, interfaces and static methods.
@@ -549,8 +549,8 @@ public class SupportClass {
                 isReachTheEnd = true;
                 return "";
             } else //if over a delimiter and delimiters must be returned
-                if ((ArrayList.indexOf(delimiters.toCharArray(), chars[this.currentPos]) != -1) && this.includeDelims)
-                    return "" + this.chars[this.currentPos++];
+                if ((ArrayList.indexOf(delimiters.toCharArray(), chars[(int)this.currentPos]) != -1) && this.includeDelims)
+                    return "" + this.chars[(int)this.currentPos++];
                 else
                     return nextToken(delimiters.toCharArray());
         }
@@ -560,7 +560,7 @@ public class SupportClass {
         private String nextToken(char[] delimiters) throws Exception {
             String token = "";
             long pos = this.currentPos;
-            while (ArrayList.indexOf(delimiters, this.chars[this.currentPos]) != -1)
+            while (ArrayList.indexOf(delimiters, this.chars[(int)this.currentPos]) != -1)
                 //skip possible delimiters
                 //The last one is a delimiter (i.e there is no more tokens)
                 if (++this.currentPos == this.chars.length) {
@@ -573,7 +573,7 @@ public class SupportClass {
             if (isReachTheEnd == true)
                 return "";
 
-            while (ArrayList.indexOf(delimiters, this.chars[this.currentPos]) == -1) {
+            while (ArrayList.indexOf(delimiters, this.chars[(int)this.currentPos]) == -1) {
                 //getting the token
                 token += this.chars[((int) this.currentPos)];
                 //the last one is not a delimiter
