@@ -14,10 +14,12 @@ import CS2JNet.System.LCC.Disposable;
 import CS2JNet.System.StringSupport;
 import CS2JNet.System.Text.EncodingSupport;
 import CS2JNet.System.Text.StringBuilderSupport;
-
+import javafx.util.converter.LocalDateTimeStringConverter;
 import org.apache.commons.codec.binary.Base64;
 
 import java.io.*;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -609,7 +611,7 @@ public class MLSUtil
         if (DelimIndex == -1)
             DelimIndex = sParas.length() - 1;
          
-        String strResult = sParas.substring(AsignIndex + sAsign.length(), (DelimIndex)-(AsignIndex + sAsign.length())).Trim();
+        String strResult = sParas.substring(AsignIndex + sAsign.length(), (DelimIndex)-(AsignIndex + sAsign.length())).trim();
         if (strResult.indexOf('"') != -1)
             strResult = deleteQuote(strResult);
          
@@ -768,17 +770,19 @@ public class MLSUtil
         inDate = StringSupport.Trim(inDate);
         oldFormatDate = oldFormatDate.replace('D', 'd').replace('Y', 'y');
         newFormatDate = newFormatDate.replace('D', 'd').replace('Y', 'y');
-        Date pDate;
+        LocalDate pDate;
         try
         {
-            if (oldFormatDate != null && oldFormatDate.length() > 0)
-                pDate = Date.ParseExact(inDate, oldFormatDate, null);
+            if (oldFormatDate != null && oldFormatDate.length() > 0) {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern(oldFormatDate);
+                pDate = LocalDate.parse(inDate, formatter);
+            }
             else
             {
                 inDate = inDate.replace("T", " ");
-                pDate = DateTimeSupport.parse(inDate);
-            } 
-            return DateTimeSupport.ToString(pDate, newFormatDate);
+                pDate =  LocalDate.parse(inDate);
+            }
+            return DateTimeSupport.ToString(java.sql.Date.valueOf(pDate), newFormatDate);
         }
         catch (Exception e)
         {
@@ -789,37 +793,37 @@ public class MLSUtil
         return inDate;
     }
 
-    public static String formatDate(String oldFormatDate, String newFormatDate, String inDate, TimeZoneInfoEx sourceTimeZone, TimeZoneInfoEx desTimeZone) throws Exception {
-        if (inDate == null || inDate.length() <= 0)
-            return "";
-         
-        inDate = StringSupport.Trim(inDate);
-        oldFormatDate = oldFormatDate.replace('D', 'd').replace('Y', 'y');
-        newFormatDate = newFormatDate.replace('D', 'd').replace('Y', 'y');
-        Date pDate;
-        try
-        {
-            if (oldFormatDate != null && oldFormatDate.length() > 0)
-                pDate = Date.ParseExact(inDate, oldFormatDate, null);
-            else
-            {
-                inDate = inDate.replace("T", " ");
-                pDate = DateTimeSupport.parse(inDate);
-            } 
-            if (sourceTimeZone == null && desTimeZone != null)
-                pDate = TimeZoneInfoEx.ConvertUtcToTimeZone(pDate, desTimeZone);
-            else if (sourceTimeZone != null && desTimeZone == null)
-                pDate = TimeZoneInfoEx.ConvertTimeZoneToUtc(pDate, sourceTimeZone);
-              
-            return DateTimeSupport.ToString(pDate, newFormatDate);
-        }
-        catch (Exception e)
-        {
-            inDate = "";
-        }
-
-        return inDate;
-    }
+//    public static String formatDate(String oldFormatDate, String newFormatDate, String inDate, TimeZoneInfoEx sourceTimeZone, TimeZoneInfoEx desTimeZone) throws Exception {
+//        if (inDate == null || inDate.length() <= 0)
+//            return "";
+//
+//        inDate = StringSupport.Trim(inDate);
+//        oldFormatDate = oldFormatDate.replace('D', 'd').replace('Y', 'y');
+//        newFormatDate = newFormatDate.replace('D', 'd').replace('Y', 'y');
+//        Date pDate;
+//        try
+//        {
+//            if (oldFormatDate != null && oldFormatDate.length() > 0)
+//                pDate =24632463246324632463246324632463246324632463246324632463246324632463246324632463 Date.ParseExact(inDate, oldFormatDate, null);
+//            else
+//            {
+//                inDate = inDate.replace("T", " ");
+//                pDate = DateTimeSupport.parse(inDate);
+//            }
+//            if (sourceTimeZone == null && desTimeZone != null)
+//                pDate = TimeZoneInfoEx.ConvertUtcToTimeZone(pDate, desTimeZone);
+//            else if (sourceTimeZone != null && desTimeZone == null)
+//                pDate = TimeZoneInfoEx.ConvertTimeZoneToUtc(pDate, sourceTimeZone);
+//
+//            return DateTimeSupport.ToString(pDate, newFormatDate);
+//        }
+//        catch (Exception e)
+//        {
+//            inDate = "";
+//        }
+//
+//        return inDate;
+//    }
 
     public static Nullable<Date> parseDateTime(String oldFormatDate, String inDate) throws Exception {
         if (inDate == null || inDate.length() <= 0)
@@ -842,7 +846,7 @@ public class MLSUtil
         {
             //, fmt);
             // convert the parsed date back to a string
-            //convDate = SupportClass.FormatDateTime(fmt, pDate).Trim();
+            //convDate = SupportClass.FormatDateTime(fmt, pDate).trim();
             pDate = null;
         }
 
