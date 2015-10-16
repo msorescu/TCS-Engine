@@ -825,11 +825,11 @@ public class MLSUtil
 //        return inDate;
 //    }
 
-    public static Nullable<Date> parseDateTime(String oldFormatDate, String inDate) throws Exception {
+    public static LocalDate parseDateTime(String oldFormatDate, String inDate) throws NullPointerException {
         if (inDate == null || inDate.length() <= 0)
             return null;
-         
-        Nullable<Date> pDate = new Date();
+
+        LocalDate pDate;
         inDate = StringSupport.Trim(inDate);
         inDate = inDate.replace("T", " ");
         oldFormatDate = oldFormatDate.replace('D', 'd').replace('Y', 'y');
@@ -837,9 +837,14 @@ public class MLSUtil
         {
             // parse the incoming date
             if (oldFormatDate != null && oldFormatDate.length() > 0)
-                pDate = Date.ParseExact(inDate, oldFormatDate, null);
+            {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern(oldFormatDate);
+                pDate = LocalDate.parse(inDate, formatter);
+            }
             else
-                pDate = DateTimeSupport.parse(inDate); 
+                pDate =  LocalDate.parse(inDate);
+
+
             return pDate;
         }
         catch (Exception e)
@@ -854,26 +859,32 @@ public class MLSUtil
     }
 
     public static StringBuilder readFile2String(String filename) throws Exception {
-        FileStreamSupport stream;
+
         StringBuilder file_context = new StringBuilder();
         //UPGRADE_TODO: Constructor 'java.io.FileInputStream.FileInputStream' was converted to 'System.IO.FileStream.FileStream' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javaioFileInputStreamFileInputStream_javalangString'"
-        stream = new FileStreamSupport(filename, FileMode.Open, FileAccess.Read);
-        System.IO.BufferedStream reader = null;
-        int b;
-        reader = new System.IO.BufferedStream(stream);
-        while ((b = reader.ReadByte()) > -1)
-        if (b != 0)
-            file_context.append((char)b);
-         
-        if (reader != null)
-        {
-            //UPGRADE_TODO: Method 'java.io.FilterInputStream.close' was converted to 'System.IO.BinaryReader.Close' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javaioFilterInputStreamclose'"
-            reader.Close();
+        FileReader stream = new FileReader(filename);
+
+        InputStream is = new ByteArrayInputStream(stream.toString().getBytes());
+        // create data input stream
+        DataInputStream dis = new DataInputStream(is);
+
+        // readBoolean till the data available to read
+        while( dis.available() >0) {
+            // read one single byte
+            byte b = dis.readByte();
+            file_context.append(b);
         }
-         
+
+        // releases any associated system files with this stream
         if (stream != null)
             stream.close();
-         
+
+        if(is != null)
+            is.close();
+
+        if(dis != null)
+            dis.close();
+
         return file_context;
     }
 
