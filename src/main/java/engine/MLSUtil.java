@@ -9,20 +9,26 @@ import CS2JNet.JavaSupport.io.FilterOnlyDirs;
 import CS2JNet.JavaSupport.io.FilterOnlyFiles;
 import CS2JNet.System.Collections.LCC.IEnumerator;
 import CS2JNet.System.DateTimeSupport;
-import CS2JNet.System.IO.*;
+import CS2JNet.System.IO.StreamReader;
+import CS2JNet.System.IO.TextReaderSupport;
 import CS2JNet.System.LCC.Disposable;
 import CS2JNet.System.StringSupport;
 import CS2JNet.System.Text.EncodingSupport;
 import CS2JNet.System.Text.StringBuilderSupport;
-import javafx.util.converter.LocalDateTimeStringConverter;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.FileUtils;
+import org.teiid.core.util.ObjectConverterUtil;
 
 import java.io.*;
+import java.nio.charset.Charset;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Enumeration;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 //using net.sf.jazzlib;
 public class MLSUtil   
@@ -113,49 +119,7 @@ public class MLSUtil
         return buf.toString();
     }
 
-    //public static bool extractTo(System.String zipPath, System.String extractToDir)
-    //{
-    //    try
-    //    {
-    //        ZipFile zipFile = new ZipFile(zipPath);
-    //        System.Collections.IEnumerator entries;
-    //        entries = zipFile.entries();
-    //        System.String zipFileName = "";
-    //        //UPGRADE_TODO: Method 'java.util.Enumeration.hasMoreElements' was converted to 'System.Collections.IEnumerator.MoveNext' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javautilEnumerationhasMoreElements'"
-    //        while (entries.MoveNext())
-    //        {
-    //            //UPGRADE_TODO: Method 'java.util.Enumeration.nextElement' was converted to 'System.Collections.IEnumerator.Current' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javautilEnumerationnextElement'"
-    //            ZipEntry entry = (ZipEntry) entries.Current;
-    //            if (entry.isDirectory())
-    //            {
-    //                //UPGRADE_TODO: Method 'java.io.File.mkdir' was converted to 'System.IO.Directory.CreateDirectory' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javaioFilemkdir'"
-    //                System.IO.Directory.CreateDirectory((new System.IO.FileInfo(extractToDir + entry.getName())).FullName);
-    //                continue;
-    //            }
-    //            System.Console.Out.WriteLine("Extracting file: " + entry.getName());
-    //            zipFileName = correctFilename(entry.getName());
-    //            if (entry.getName().IndexOf("/") == - 1)
-    //            {
-    //                //UPGRADE_TODO: Constructor 'java.io.FileOutputStream.FileOutputStream' was converted to 'System.IO.FileStream.FileStream' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javaioFileOutputStreamFileOutputStream_javalangString'"
-    //                copyInputStream(zipFile.getInputStream(entry), new System.IO.BufferedStream(new System.IO.FileStream(extractToDir + zipFileName, System.IO.FileMode.Create)));
-    //            }
-    //            else
-    //            {
-    //                zipFileName = zipFileName.substring(zipFileName.LastIndexOf("/") + 1, (zipFileName.length()) - (zipFileName.LastIndexOf("/") + 1));
-    //                //UPGRADE_TODO: Constructor 'java.io.FileOutputStream.FileOutputStream' was converted to 'System.IO.FileStream.FileStream' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javaioFileOutputStreamFileOutputStream_javalangString'"
-    //                copyInputStream(zipFile.getInputStream(entry), new System.IO.BufferedStream(new System.IO.FileStream(extractToDir + zipFileName, System.IO.FileMode.Create)));
-    //            }
-    //        }
-    //        zipFile.close();
-    //        return true;
-    //    }
-    //    catch (System.IO.IOException ioe)
-    //    {
-    //        System.Console.Error.WriteLine("Unhandled exception:");
-    //        SupportClass.WriteStackTrace(ioe, Console.Error);
-    //        return false;
-    //    }
-    //}
+
     public static boolean isNumber(String _value) throws Exception {
         if (_value == null || _value.length() == 0)
             return false;
@@ -1064,14 +1028,10 @@ public class MLSUtil
                 data += "==";
             else if ((data.length() % 4) == 3)
                 data += "=";
-               
-            System.Text.ASCIIEncoding encoder = new System.Text.ASCIIEncoding();
-            System.Text.Decoder utf8Decode = encoder.GetDecoder();
+
+
             byte[] todecode_byte = Base64.decodeBase64(data);
-            int charCount = utf8Decode.GetCharCount(todecode_byte, 0, todecode_byte.length);
-            char[] decoded_char = new char[charCount];
-            utf8Decode.GetChars(todecode_byte, 0, todecode_byte.length, decoded_char, 0);
-            String result = new String(decoded_char);
+            String result = new String(todecode_byte, Charset.forName("UTF-8"));
             return result;
         }
         catch (Exception e)
@@ -1208,10 +1168,10 @@ public class MLSUtil
                 // Restore end of array
                 // All done. Exit.
                 // Sift down testString to its proper level
-                if ((j < ir) && (String.CompareOrdinal(strings[j].toUpperCase(), strings[j + 1].toUpperCase()) < 0))
+                if ((j < ir) && (strings[j].toUpperCase().compareTo(strings[j + 1].toUpperCase()) < 0))
                     j++;
                  
-                if ((String.CompareOrdinal(strings[j].toUpperCase(), testString.toUpperCase()) < 0))
+                if ((strings[j].toUpperCase().compareTo(testString.toUpperCase()) < 0))
                     break;
                  
                 strings[i] = strings[j];
@@ -1224,13 +1184,13 @@ public class MLSUtil
 
     public static String[] stringSplit(String input, String delimiter) throws Exception {
         SupportClass.Tokenizer st = new SupportClass.Tokenizer(input,delimiter);
-        ArrayList tokens = ArrayList.Synchronized(new ArrayList(10));
+        ArrayList tokens = new ArrayList(10);
         while (st.hasMoreTokens())
         {
             tokens.add(st.nextToken());
         }
         String[] output = new String[tokens.size()];
-        IEnumerator outputTokens = EnumeratorSupport.mk(tokens.iterator());
+        IEnumerator outputTokens = (IEnumerator) EnumeratorSupport.mk(tokens.iterator());
         int i = 0;
         while (outputTokens.moveNext())
         {
@@ -1243,13 +1203,13 @@ public class MLSUtil
 
     public static String[] stringSplitEx(String input, String delimiter) throws Exception {
         StringTokenizerEx st = new StringTokenizerEx(input,delimiter);
-        ArrayList tokens = ArrayList.Synchronized(new ArrayList(10));
+        ArrayList tokens = new ArrayList(10);
         while (st.hasMoreElements())
         {
             tokens.add(st.nextElement());
         }
         String[] output = new String[tokens.size()];
-        IEnumerator outputTokens = EnumeratorSupport.mk(tokens.iterator());
+        IEnumerator outputTokens = (IEnumerator) EnumeratorSupport.mk(tokens.iterator());
         int i = 0;
         while (outputTokens.moveNext())
         {
@@ -1283,31 +1243,61 @@ public class MLSUtil
         }
     }
 
-    public static boolean extractTo(String zipPath, String extractToDir) throws Exception {
-        FastZip fz = new FastZip();
-        fz.ExtractZip(zipPath, extractToDir, "");
+
+    public static boolean extractTo(String zipPath, String extractToDir) throws IOException {
+
+        File sourceZipFile = new File(zipPath);
+        File unzipDestinationDirectory = new File(extractToDir);
+
+        // Open Zip file for reading
+        ZipFile zipFile = new ZipFile(sourceZipFile, ZipFile.OPEN_READ);
+
+        // Create an enumeration of the entries in the zip file
+        Enumeration zipFileEntries = zipFile.entries();
+
+        // Process each entry
+        while (zipFileEntries.hasMoreElements()) {
+            // grab a zip file entry
+            ZipEntry entry = (ZipEntry) zipFileEntries.nextElement();
+
+            String currentEntry = entry.getName();
+
+            File destFile = new File(unzipDestinationDirectory, currentEntry);
+
+            // grab file's parent directory structure
+            File destinationParent = destFile.getParentFile();
+
+            // create the parent directory structure if needed
+            destinationParent.mkdirs();
+
+            // extract file if not a directory
+            if (!entry.isDirectory()) {
+               ObjectConverterUtil.write(zipFile.getInputStream(entry),
+                       destFile);
+            }
+        }
+        zipFile.close();
+
         return true;
     }
 
     public static void copyFolder(File source, File target) throws Exception {
         // Check if the target directory exists, if not, create it.
-        if (File.Exists(target.FullName) == false)
+        if (!target.exists())
         {
-            File.CreateDirectory(target.FullName);
+            target.mkdir();
         }
          
         for (File fi : source.listFiles(new FilterOnlyFiles()))
         {
-            // Copy each file into it’s new directory.
-            fi.CopyTo((new File(target.toString(), fi.getName())).toString(), true);
+            // Copy each file into it’s new directory
+            FileUtils.copyFileToDirectory(fi, target);
         }
-        for (Object __dummyForeachVar1 : source.listFiles(new FilterOnlyDirs()))
-        {
-            // Copy each subdirectory using recursion.
-            File diSourceSubDir = (File)__dummyForeachVar1;
-            File nextTargetSubDir = target.CreateSubdirectory(diSourceSubDir.getName());
-            copyFolder(diSourceSubDir,nextTargetSubDir);
+        for (File fi : source.listFiles(new FilterOnlyDirs())) {
+            // Copy each subdirectory.
+            FileUtils.copyDirectoryToDirectory(fi, target);
         }
+
     }
 
 }

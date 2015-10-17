@@ -5,6 +5,7 @@
 package engine;
 
 import CS2JNet.System.ArgumentException;
+import CS2JNet.System.ArgumentOutOfRangeException;
 import CS2JNet.System.Collections.LCC.IEnumerator;
 import CS2JNet.System.IO.FileAccess;
 import CS2JNet.System.IO.FileMode;
@@ -12,7 +13,7 @@ import CS2JNet.System.IO.FileStreamSupport;
 
 import java.io.File;
 import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
 
 /**
  * Contains conversion support elements such as classes, interfaces and static methods.
@@ -549,7 +550,7 @@ public class SupportClass {
                 isReachTheEnd = true;
                 return "";
             } else //if over a delimiter and delimiters must be returned
-                if ((ArrayList.indexOf(delimiters.toCharArray(), chars[(int)this.currentPos]) != -1) && this.includeDelims)
+                if ((delimiters.indexOf(chars[(int)this.currentPos]) != -1) && this.includeDelims)
                     return "" + this.chars[(int)this.currentPos++];
                 else
                     return nextToken(delimiters.toCharArray());
@@ -560,7 +561,7 @@ public class SupportClass {
         private String nextToken(char[] delimiters) throws Exception {
             String token = "";
             long pos = this.currentPos;
-            while (ArrayList.indexOf(delimiters, this.chars[(int)this.currentPos]) != -1)
+            while (delimiters.toString().indexOf(this.chars[(int)this.currentPos]) != -1)
                 //skip possible delimiters
                 //The last one is a delimiter (i.e there is no more tokens)
                 if (++this.currentPos == this.chars.length) {
@@ -573,7 +574,7 @@ public class SupportClass {
             if (isReachTheEnd == true)
                 return "";
 
-            while (ArrayList.indexOf(delimiters, this.chars[(int)this.currentPos]) == -1) {
+            while (delimiters.toString().indexOf(this.chars[(int)this.currentPos]) == -1) {
                 //getting the token
                 token += this.chars[((int) this.currentPos)];
                 //the last one is not a delimiter
@@ -597,7 +598,7 @@ public class SupportClass {
                 if (isReachTheEnd)
                     return false;
 
-            } catch (System.ArgumentOutOfRangeException __dummyCatchVar0) {
+            } catch (ArgumentOutOfRangeException __dummyCatchVar0) {
                 return false;
             } finally {
                 this.currentPos = pos;
@@ -620,7 +621,7 @@ public class SupportClass {
 
                     i++;
                 }
-            } catch (System.ArgumentOutOfRangeException __dummyCatchVar1) {
+            } catch (ArgumentOutOfRangeException __dummyCatchVar1) {
                 this.currentPos = pos;
                 return i;
             }
@@ -685,9 +686,8 @@ public class SupportClass {
      * @return The reversed string contained in a StringBuilder object.
      */
     public static StringBuilder reverseString(StringBuilder text) throws Exception {
-        char[] tmpChar = text.toString().toCharArray();
-        Collections.reverse(tmpChar);
-        return new StringBuilder(new String(tmpChar));
+        String reverse = new StringBuffer(text.toString()).reverse().toString();
+        return new StringBuilder(reverse);
     }
 
     /*******************************/
